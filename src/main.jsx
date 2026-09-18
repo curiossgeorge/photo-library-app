@@ -200,6 +200,16 @@ function App() {
   }, [])
 
   
+  
+  async function loadCloudPhotos() {
+    const { data, error } = await supabase.storage.from('photods').list();
+    if (error || !data) return [];
+    return data.map(file => ({
+      id: file.name,
+      url: supabase.storage.from('photods').getPublicUrl(file.name).data.publicUrl
+    }));
+  }
+
   async function handleCloudSync() {
     setSyncing(true)
     setSyncStatus('Reading local IndexedDB photos...')
