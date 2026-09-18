@@ -19,13 +19,13 @@ export function App() {
   }, [])
 
   const fetchCloudPhotos = async () => {
-    const { data, error } = await supabase.storage.from('photos').list()
+    const { data, error } = await supabase.storage.from('photods').list()
     if (error) {
       console.error('Error fetching photos:', error)
       return
     }
     const loadedPhotos = data.map((file) => {
-      const { data: urlData } = supabase.storage.from('photos').getPublicUrl(file.name)
+      const { data: urlData } = supabase.storage.from('photods').getPublicUrl(file.name)
       return { id: file.id, name: file.name, url: urlData.publicUrl }
     })
     setPhotos(loadedPhotos)
@@ -48,7 +48,7 @@ export function App() {
         const response = await fetch(photo.url || photo.data)
         const blob = await response.blob()
         const fileName = 'photo_' + Date.now() + '_' + i + '.jpg'
-        const { error: uploadError } = await supabase.storage.from('photos').upload(fileName, blob, { upsert: true })
+        const { error: uploadError } = await supabase.storage.from('photods').upload(fileName, blob, { upsert: true })
         if (uploadError) throw uploadError
       }
       setSyncStatus('Sync complete! Refreshing library...')
@@ -78,3 +78,4 @@ export function App() {
 }
 
 export default App
+
