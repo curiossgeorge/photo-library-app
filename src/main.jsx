@@ -210,6 +210,13 @@ function App() {
     }));
   }
 
+  
+  function getPhotoUrl(photo) {
+    if (photo.blob) return URL.createObjectURL(photo.blob);
+    if (photo.url) return photo.url;
+    return supabase.storage.from('photods').getPublicUrl(photo.id || photo.name).data.publicUrl;
+  }
+
   async function handleCloudSync() {
     setSyncing(true)
     setSyncStatus('Reading local IndexedDB photos...')
