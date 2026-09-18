@@ -6,7 +6,7 @@ import './style.css'
 const DB_NAME = 'photo-library-indexeddb-v1'
 const DB_VERSION = 1
 const FOLDERS = 'folders'
-const PHOTOS = 'photos'
+const PHOTOS = 'photods'
 
 const starterFolders = [
   { id: 'cars', name: 'Cars', parentId: null },
@@ -136,7 +136,7 @@ function App() {
 
         // Check for legacy localStorage data
         const legacyFolders = localStorage.getItem('photo_folders') || localStorage.getItem('folders')
-        const legacyPhotos = localStorage.getItem('photo_library') || localStorage.getItem('photos')
+        const legacyPhotos = localStorage.getItem('photo_library') || localStorage.getItem('photods')
 
         if (legacyFolders) {
           try {
@@ -215,7 +215,7 @@ function App() {
         const p = allPhotos[i]
         if (p.blob) {
           const fileName = 'photo_' + Date.now() + '_' + i + '.jpg'
-          const { error: upErr } = await supabase.storage.from('photos').upload(fileName, p.blob, { upsert: true })
+          const { error: upErr } = await supabase.storage.from('photods').upload(fileName, p.blob, { upsert: true })
           if (upErr) console.error('Upload error:', upErr)
         }
       }
