@@ -1,3 +1,4 @@
+import { supabase } from './supabaseClient'
 import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { createRoot } from 'react-dom/client'
 import './style.css'
@@ -87,6 +88,8 @@ function App() {
   const [selectedPhoto, setSelectedPhoto] = useState(null)
   const [confirmDeletePhoto, setConfirmDeletePhoto] = useState(null)
   const [error, setError] = useState('')
+  const [syncing, setSyncing] = useState(false)
+  const [syncStatus, setSyncStatus] = useState('')
   const [storageInfo, setStorageInfo] = useState({ usage: 0, quota: 0, persisted: false })
   const inputRef = useRef(null)
 
@@ -195,6 +198,35 @@ function App() {
       }
     })()
   }, [])
+
+  
+  async function handleCloudSync() {
+    setSyncing(true)
+    setSyncStatus('Reading local IndexedDB photos...')
+    try {
+      const allPhotos = await getAll(PHOTOS)
+      if (!allPhotos.length) {
+        setSyncStatus('No photos found in local storage.')
+        setSyncing(false)
+        return
+      }
+      setSyncStatus('Syncing ' + allPhotos.length + ' photos to Supabase cloud...')
+      for (let i = 0; i < allPhotos.length; i++) {
+        const p = allPhotos[i]
+        if (p.blob) {
+          const fileName = 'photo_' + Date.now() + '_' + i + '.jpg'
+          const { error: upErr } = await supabase.storage.from('photos').upload(fileName, p.blob, { upsert: true })
+          if (upErr) console.error('Upload error:', upErr)
+        }
+      }
+      setSyncStatus('Sync complete! All photos are stored in the cloud.')
+    } catch (e) {
+      console.error(e)
+      setSyncStatus('Sync failed: ' + e.message)
+    } finally {
+      setSyncing(false)
+    }
+  }
 
   const currentFolder = folders.find(f => f.id === currentFolderId) || null
   const children = useMemo(() => folders.filter(f => f.parentId === currentFolderId), [folders, currentFolderId])
@@ -364,6 +396,7 @@ function App() {
             <div className="eyebrow">PHOTO LIBRARY</div>
             <h1>{currentFolder ? currentFolder.name : 'Every Photo'}</h1>
           </div>
+          <button onClick={handleCloudSync} disabled={syncing} style={{ padding: '10px 16px', backgroundColor: '#3ecf8e', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer', marginRight: '10px' }}>{syncing ? 'Syncing...' : '☁️ Sync Local Photos to Cloud'}</button>
           <label className="upload">
             + Upload Photos
             <input ref={inputRef} type="file" accept="image/*" multiple onChange={uploadPhotos} />
