@@ -218,6 +218,7 @@ function App() {
   }
 
   async function handleCloudSync() {
+    console.log("Sync starting...");
     console.log("Sync button clicked!");
     try {
     setSyncing(true)
