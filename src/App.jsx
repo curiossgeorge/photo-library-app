@@ -2,6 +2,14 @@ import { useState, useEffect } from 'react'
 import { supabase } from './supabaseClient'
 
 export function App() {
+  useEffect(() => {
+    async function loadCloudPhotos() {
+      const { data, error } = await supabase.storage.from('photods').list('', { limit: 1000, recursive: true });
+      if (data) console.log('Fetched cloud photos:', data);
+    }
+    loadCloudPhotos();
+  }, []);
+
   const [photos, setPhotos] = useState([])
   const [syncing, setSyncing] = useState(false)
   const [syncStatus, setSyncStatus] = useState('')
