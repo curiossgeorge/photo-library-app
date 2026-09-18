@@ -6,7 +6,7 @@ import './style.css'
 const DB_NAME = 'photo-library-indexeddb-v1'
 const DB_VERSION = 1
 const FOLDERS = 'folders'
-const PHOTOS = 'photods'
+const PHOTOS = 'photos'
 
 const starterFolders = [
   { id: 'cars', name: 'Cars', parentId: null },
